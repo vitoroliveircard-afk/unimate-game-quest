@@ -26,9 +26,28 @@ export function useUserRole() {
 }
 
 export function useIsAdmin() {
-  const { data: role, isLoading } = useUserRole();
+  const { user } = useAuth();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['is-admin', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return false;
+
+      const { data, error } = await supabase.rpc('has_role', {
+        _user_id: user.id,
+        _role: 'admin',
+      });
+
+      if (error) throw error;
+      return !!data;
+    },
+    enabled: !!user?.id,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+  });
+
   return {
-    isAdmin: role === 'admin',
+    isAdmin: !!data,
     isLoading,
   };
 }
