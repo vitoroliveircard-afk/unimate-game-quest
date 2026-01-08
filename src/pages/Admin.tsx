@@ -79,6 +79,11 @@ export default function Admin() {
   const getLessonsForModule = (moduleId: string) => 
     allLessons.filter((l) => l.module_id === moduleId);
 
+  const formatError = (e: unknown) => {
+    if (e && typeof e === 'object' && 'message' in e) return String((e as any).message);
+    return 'Sem detalhes.';
+  };
+
   const handleSaveModule = async (data: Partial<Module> & { id?: string }) => {
     try {
       if (data.id) {
@@ -97,8 +102,12 @@ export default function Admin() {
       }
       setEditingModule(null);
       setNewModuleOpen(false);
-    } catch {
-      toast({ title: 'Erro ao salvar módulo', variant: 'destructive' });
+    } catch (e) {
+      toast({
+        title: 'Erro ao salvar módulo',
+        description: formatError(e),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -107,8 +116,12 @@ export default function Admin() {
     try {
       await deleteModule.mutateAsync(id);
       toast({ title: 'Módulo excluído!' });
-    } catch {
-      toast({ title: 'Erro ao excluir módulo', variant: 'destructive' });
+    } catch (e) {
+      toast({
+        title: 'Erro ao excluir módulo',
+        description: formatError(e),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -131,8 +144,12 @@ export default function Admin() {
       }
       setEditingLesson(null);
       setNewLessonModuleId(null);
-    } catch {
-      toast({ title: 'Erro ao salvar aula', variant: 'destructive' });
+    } catch (e) {
+      toast({
+        title: 'Erro ao salvar aula',
+        description: formatError(e),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -141,8 +158,12 @@ export default function Admin() {
     try {
       await deleteLesson.mutateAsync(id);
       toast({ title: 'Aula excluída!' });
-    } catch {
-      toast({ title: 'Erro ao excluir aula', variant: 'destructive' });
+    } catch (e) {
+      toast({
+        title: 'Erro ao excluir aula',
+        description: formatError(e),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -163,8 +184,12 @@ export default function Admin() {
         toast({ title: 'Pergunta criada!' });
       }
       setEditingQuiz(null);
-    } catch {
-      toast({ title: 'Erro ao salvar pergunta', variant: 'destructive' });
+    } catch (e) {
+      toast({
+        title: 'Erro ao salvar pergunta',
+        description: formatError(e),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -173,8 +198,12 @@ export default function Admin() {
     try {
       await deleteQuiz.mutateAsync(id);
       toast({ title: 'Pergunta excluída!' });
-    } catch {
-      toast({ title: 'Erro ao excluir pergunta', variant: 'destructive' });
+    } catch (e) {
+      toast({
+        title: 'Erro ao excluir pergunta',
+        description: formatError(e),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -197,8 +226,12 @@ export default function Admin() {
       }
       setEditingShopItem(null);
       setNewShopItemOpen(false);
-    } catch {
-      toast({ title: 'Erro ao salvar item', variant: 'destructive' });
+    } catch (e) {
+      toast({
+        title: 'Erro ao salvar item',
+        description: formatError(e),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -207,8 +240,12 @@ export default function Admin() {
     try {
       await deleteShopItem.mutateAsync(id);
       toast({ title: 'Item excluído!' });
-    } catch {
-      toast({ title: 'Erro ao excluir item', variant: 'destructive' });
+    } catch (e) {
+      toast({
+        title: 'Erro ao excluir item',
+        description: formatError(e),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -231,8 +268,12 @@ export default function Admin() {
       }
       setEditingAchievement(null);
       setNewAchievementOpen(false);
-    } catch {
-      toast({ title: 'Erro ao salvar conquista', variant: 'destructive' });
+    } catch (e) {
+      toast({
+        title: 'Erro ao salvar conquista',
+        description: formatError(e),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -241,8 +282,12 @@ export default function Admin() {
     try {
       await deleteAchievement.mutateAsync(id);
       toast({ title: 'Conquista excluída!' });
-    } catch {
-      toast({ title: 'Erro ao excluir conquista', variant: 'destructive' });
+    } catch (e) {
+      toast({
+        title: 'Erro ao excluir conquista',
+        description: formatError(e),
+        variant: 'destructive',
+      });
     }
   };
 
