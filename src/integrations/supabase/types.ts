@@ -88,6 +88,33 @@ export type Database = {
           },
         ]
       }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lessons: {
         Row: {
           content_text: string | null
@@ -170,6 +197,7 @@ export type Database = {
           current_avatar_id: string | null
           current_frame_id: string | null
           current_streak: number
+          featured_achievements: string[] | null
           id: string
           level: number
           nome: string
@@ -185,6 +213,7 @@ export type Database = {
           current_avatar_id?: string | null
           current_frame_id?: string | null
           current_streak?: number
+          featured_achievements?: string[] | null
           id?: string
           level?: number
           nome?: string
@@ -200,6 +229,7 @@ export type Database = {
           current_avatar_id?: string | null
           current_frame_id?: string | null
           current_streak?: number
+          featured_achievements?: string[] | null
           id?: string
           level?: number
           nome?: string
