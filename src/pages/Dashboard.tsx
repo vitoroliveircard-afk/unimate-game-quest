@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
   Gamepad2, BookOpen, Trophy, Flame, Lock, CheckCircle2, Play, LogOut, Settings,
-  Cpu, PenTool, Wrench, ShoppingBag, User, Coins
+  Cpu, PenTool, Wrench, ShoppingBag, User
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
@@ -14,6 +14,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useModules } from '@/hooks/useModules';
 import { useLessons } from '@/hooks/useLessons';
 import { useUserProgress } from '@/hooks/useUserProgress';
+import { useIsAdmin } from '@/hooks/useUserRole';
 
 const iconMap: Record<string, React.ElementType> = { 
   BookOpen, Gamepad2, Trophy, Cpu, PenTool, Wrench 
@@ -25,6 +26,7 @@ export default function Dashboard() {
   const { data: modules = [], isLoading: modulesLoading } = useModules();
   const { data: allLessons = [] } = useLessons();
   const { data: userProgress = [] } = useUserProgress();
+  const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -90,9 +92,11 @@ export default function Dashboard() {
                 <p className="text-xs text-muted-foreground">Nível {profile?.level || 1}</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/admin')} title="Admin">
-              <Settings className="w-5 h-5" />
-            </Button>
+            {isAdmin && (
+              <Button variant="ghost" size="icon" onClick={() => navigate('/admin')} title="Admin">
+                <Settings className="w-5 h-5" />
+              </Button>
+            )}
             <Button variant="ghost" size="icon" onClick={handleLogout}>
               <LogOut className="w-5 h-5" />
             </Button>
