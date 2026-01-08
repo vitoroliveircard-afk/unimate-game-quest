@@ -10,6 +10,10 @@ export interface Profile {
   xp_total: number;
   level: number;
   current_streak: number;
+  coins: number;
+  current_avatar_id: string | null;
+  current_frame_id: string | null;
+  theme_preference: string | null;
   created_at: string;
   updated_at: string;
 }

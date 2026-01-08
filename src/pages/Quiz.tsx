@@ -2,13 +2,16 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Swords, CheckCircle2, XCircle, ChevronRight, Trophy, Home, Heart, Bug, Shield, Zap } from 'lucide-react';
+import { Swords, CheckCircle2, XCircle, ChevronRight, Trophy, Home, Heart, Bug, Shield, Zap, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
+import { CoinCounter } from '@/components/CoinCounter';
 import { useQuizzes } from '@/hooks/useQuizzes';
 import { useModules, useUpdateModule } from '@/hooks/useModules';
 import { useUpdateXP } from '@/hooks/useUserProgress';
 import { useProfile } from '@/hooks/useProfile';
+import { useAddCoins } from '@/hooks/useCoins';
+import { useCheckAchievements } from '@/hooks/useAchievements';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Quiz() {
@@ -19,6 +22,8 @@ export default function Quiz() {
   const { data: modules = [] } = useModules();
   const updateModule = useUpdateModule();
   const updateXP = useUpdateXP();
+  const addCoins = useAddCoins();
+  const checkAchievements = useCheckAchievements();
   const { profile } = useProfile();
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -82,11 +87,23 @@ export default function Quiz() {
   };
 
   const handleFinish = async () => {
+    const isPerfect = score === quizzes.length && playerHealth === 3;
+    const baseCoins = 50;
+    const perfectBonus = isPerfect ? 50 : 0;
+    const totalCoins = baseCoins + perfectBonus;
+    
     if (passed && nextModule) {
-      // Unlock next module
       try {
         await updateModule.mutateAsync({ id: nextModule.id, is_locked: false });
-        await updateXP.mutateAsync(500); // Bonus XP for beating the boss
+        await updateXP.mutateAsync(500);
+        await addCoins.mutateAsync(totalCoins);
+        
+        // Check achievements
+        await checkAchievements.mutateAsync({ conditionType: 'boss_defeat', conditionValue: 1 });
+        if (isPerfect) {
+          await checkAchievements.mutateAsync({ conditionType: 'perfect_score', conditionValue: 1 });
+        }
+        await checkAchievements.mutateAsync({ conditionType: 'module_complete', conditionValue: (currentModule?.order_index || 0) + 1 });
         
         confetti({
           particleCount: 200,
@@ -96,8 +113,8 @@ export default function Quiz() {
         });
         
         toast({
-          title: '🎉 Boss Derrotado!',
-          description: `Você desbloqueou o módulo "${nextModule.title}"!`,
+          title: isPerfect ? '🌟 Perfect Run!' : '🎉 Boss Derrotado!',
+          description: `Você ganhou +${totalCoins} moedas${isPerfect ? ' (Bônus Perfeccionista!)' : ''} e desbloqueou "${nextModule.title}"!`,
         });
       } catch {
         toast({ title: 'Erro ao desbloquear próximo módulo', variant: 'destructive' });
@@ -201,6 +218,7 @@ export default function Quiz() {
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <Logo size="sm" />
           <div className="flex items-center gap-4">
+            <CoinCounter coins={profile?.coins || 0} size="sm" />
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 border border-orange-500/20">
               <Swords className="w-5 h-5 text-orange-500" />
               <span className="font-bold text-orange-500">Boss Fight</span>
