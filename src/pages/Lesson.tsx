@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { ArrowLeft, CheckCircle2, ChevronRight, Swords, Sparkles } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ChevronRight, Swords, Sparkles, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
 import { XPBar } from '@/components/XPBar';
 import { UserAvatar } from '@/components/UserAvatar';
+import { CoinCounter } from '@/components/CoinCounter';
 import { LessonSidebar } from '@/components/LessonSidebar';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import { MarkdownContent } from '@/components/MarkdownContent';
@@ -14,6 +15,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useLesson, useLessons } from '@/hooks/useLessons';
 import { useUserProgress, useCompleteLesson, useUpdateXP } from '@/hooks/useUserProgress';
+import { useAddCoins } from '@/hooks/useCoins';
+import { useCheckAchievements } from '@/hooks/useAchievements';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Lesson() {
@@ -27,9 +30,13 @@ export default function Lesson() {
   const { data: userProgress = [] } = useUserProgress();
   const completeLesson = useCompleteLesson();
   const updateXP = useUpdateXP();
+  const addCoins = useAddCoins();
+  const checkAchievements = useCheckAchievements();
   
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  
+  const LESSON_COIN_REWARD = 10;
 
   const isLessonCompleted = userProgress.some(
     (p) => p.lesson_id === lessonId && p.is_completed
@@ -47,6 +54,11 @@ export default function Lesson() {
     try {
       await completeLesson.mutateAsync({ lessonId });
       await updateXP.mutateAsync(lesson?.xp_reward || 100);
+      await addCoins.mutateAsync(LESSON_COIN_REWARD);
+      
+      // Check for lesson completion achievements
+      const completedCount = userProgress.filter(p => p.is_completed).length + 1;
+      await checkAchievements.mutateAsync({ conditionType: 'lesson_complete', conditionValue: completedCount });
       
       // Play success sound
       const audio = new Audio('/success.mp3');
@@ -63,7 +75,7 @@ export default function Lesson() {
       
       toast({
         title: '🎉 Aula Concluída!',
-        description: `Você ganhou +${lesson?.xp_reward || 100} XP!`,
+        description: `Você ganhou +${lesson?.xp_reward || 100} XP e +${LESSON_COIN_REWARD} moedas!`,
       });
     } catch (error) {
       toast({
@@ -119,6 +131,7 @@ export default function Lesson() {
           </div>
 
           <div className="flex items-center gap-4">
+            <CoinCounter coins={profile?.coins || 0} size="sm" />
             <div className="hidden lg:block w-40">
               <XPBar xp={profile?.xp_total || 0} level={profile?.level || 1} showDetails={false} />
             </div>

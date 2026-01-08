@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          coin_reward: number
+          condition_type: string
+          condition_value: string | null
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          name: string
+          xp_reward: number
+        }
+        Insert: {
+          coin_reward?: number
+          condition_type: string
+          condition_value?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          name: string
+          xp_reward?: number
+        }
+        Update: {
+          coin_reward?: number
+          condition_type?: string
+          condition_value?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          name?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           created_at: string
@@ -129,33 +165,45 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          coins: number
           created_at: string
+          current_avatar_id: string | null
+          current_frame_id: string | null
           current_streak: number
           id: string
           level: number
           nome: string
+          theme_preference: string | null
           updated_at: string
           user_id: string
           xp_total: number
         }
         Insert: {
           avatar_url?: string | null
+          coins?: number
           created_at?: string
+          current_avatar_id?: string | null
+          current_frame_id?: string | null
           current_streak?: number
           id?: string
           level?: number
           nome?: string
+          theme_preference?: string | null
           updated_at?: string
           user_id: string
           xp_total?: number
         }
         Update: {
           avatar_url?: string | null
+          coins?: number
           created_at?: string
+          current_avatar_id?: string | null
+          current_frame_id?: string | null
           current_streak?: number
           id?: string
           level?: number
           nome?: string
+          theme_preference?: string | null
           updated_at?: string
           user_id?: string
           xp_total?: number
@@ -213,6 +261,71 @@ export type Database = {
           },
         ]
       }
+      shop_items: {
+        Row: {
+          asset_download_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          price: number
+          type: string
+        }
+        Insert: {
+          asset_download_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          price?: number
+          type: string
+        }
+        Update: {
+          asset_download_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          price?: number
+          type?: string
+        }
+        Relationships: []
+      }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_badges: {
         Row: {
           badge_id: string
@@ -238,6 +351,35 @@ export type Database = {
             columns: ["badge_id"]
             isOneToOne: false
             referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_inventory: {
+        Row: {
+          id: string
+          item_id: string
+          purchased_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          item_id: string
+          purchased_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          item_id?: string
+          purchased_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_inventory_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "shop_items"
             referencedColumns: ["id"]
           },
         ]

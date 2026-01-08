@@ -2,12 +2,13 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
   Gamepad2, BookOpen, Trophy, Flame, Lock, CheckCircle2, Play, LogOut, Settings,
-  Cpu, PenTool, Wrench
+  Cpu, PenTool, Wrench, ShoppingBag, User, Coins
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
 import { XPBar } from '@/components/XPBar';
 import { UserAvatar } from '@/components/UserAvatar';
+import { CoinCounter } from '@/components/CoinCounter';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useModules } from '@/hooks/useModules';
@@ -67,7 +68,8 @@ export default function Dashboard() {
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-white/5">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <Logo size="sm" />
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
+            <CoinCounter coins={profile?.coins || 0} size="sm" />
             <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 border border-orange-500/20">
               <Flame className="w-5 h-5 text-orange-500" />
               <span className="font-bold text-orange-500">{profile?.current_streak || 0}</span>
@@ -75,7 +77,13 @@ export default function Dashboard() {
             <div className="hidden lg:block w-48">
               <XPBar xp={profile?.xp_total || 0} level={profile?.level || 1} showDetails={false} />
             </div>
-            <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/shop')} title="Loja">
+              <ShoppingBag className="w-5 h-5" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} title="Perfil">
+              <User className="w-5 h-5" />
+            </Button>
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/profile')}>
               <UserAvatar avatarUrl={profile?.avatar_url} nome={profile?.nome} level={profile?.level || 1} size="sm" />
               <div className="hidden sm:block">
                 <p className="font-semibold text-sm">{profile?.nome || 'Jogador'}</p>
