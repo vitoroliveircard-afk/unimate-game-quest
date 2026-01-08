@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
   PlusCircle, Edit2, Trash2, ChevronDown, ChevronRight, 
   BookOpen, Gamepad2, Swords, ArrowLeft, Save, X, GripVertical,
-  ShoppingBag, Trophy, Coins, Image
+  ShoppingBag, Trophy, Coins, Image, Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,8 +25,9 @@ import { useNavigate } from 'react-router-dom';
 import type { Module } from '@/hooks/useModules';
 import type { Lesson } from '@/hooks/useLessons';
 import type { Quiz } from '@/hooks/useQuizzes';
+import { UsersTab } from '@/components/admin/UsersTab';
 
-type Tab = 'modules' | 'quizzes' | 'shop' | 'achievements';
+type Tab = 'modules' | 'quizzes' | 'shop' | 'achievements' | 'users';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -341,6 +342,14 @@ export default function Admin() {
           >
             <Trophy className="w-4 h-4" />
             Conquistas
+          </Button>
+          <Button
+            variant={activeTab === 'users' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('users')}
+            className="gap-2"
+          >
+            <Users className="w-4 h-4" />
+            Usuários
           </Button>
         </div>
 
@@ -788,6 +797,9 @@ export default function Admin() {
             )}
           </div>
         )}
+
+        {/* Users Tab */}
+        {activeTab === 'users' && <UsersTab />}
       </div>
     </div>
   );
