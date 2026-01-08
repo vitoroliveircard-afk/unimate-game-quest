@@ -465,6 +465,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: { Args: never; Returns: boolean }
       set_user_role: {
         Args: {
           new_role: Database["public"]["Enums"]["app_role"]
