@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
   ArrowLeft, User, Trophy, Package, Settings, Check, Download, 
   Coins, Star, Target, BookOpen, Bug, Crown, Eye, Compass, Wrench,
-  Footprints, GraduationCap, Skull
+  Footprints, GraduationCap, Skull, Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
@@ -15,6 +15,7 @@ import { useUserInventory, type ShopItem } from '@/hooks/useShop';
 import { useAchievements, useUserAchievements, type Achievement } from '@/hooks/useAchievements';
 import { useEquipItem } from '@/hooks/useCoins';
 import { useToast } from '@/hooks/use-toast';
+import { SocialHub } from '@/components/social/SocialHub';
 
 const iconMap: Record<string, React.ReactNode> = {
   Trophy: <Trophy className="w-6 h-6" />,
@@ -31,7 +32,7 @@ const iconMap: Record<string, React.ReactNode> = {
   Skull: <Skull className="w-6 h-6" />,
 };
 
-type TabType = 'achievements' | 'inventory';
+type TabType = 'achievements' | 'inventory' | 'social';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -140,6 +141,14 @@ export default function Profile() {
           >
             <Package className="w-4 h-4" />
             Inventário
+          </Button>
+          <Button
+            variant={activeTab === 'social' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('social')}
+            className="gap-2"
+          >
+            <Users className="w-4 h-4" />
+            Social
           </Button>
         </div>
 
@@ -296,6 +305,13 @@ export default function Profile() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Social Tab */}
+        {activeTab === 'social' && (
+          <div className="glass-card p-6">
+            <SocialHub />
           </div>
         )}
       </div>
