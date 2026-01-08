@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Swords, CheckCircle2, XCircle, ChevronRight, Trophy, Home } from 'lucide-react';
+import { Swords, CheckCircle2, XCircle, ChevronRight, Trophy, Home, Heart, Bug, Shield, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
 import { useQuizzes } from '@/hooks/useQuizzes';
 import { useModules, useUpdateModule } from '@/hooks/useModules';
 import { useUpdateXP } from '@/hooks/useUserProgress';
+import { useProfile } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Quiz() {
@@ -18,12 +19,15 @@ export default function Quiz() {
   const { data: modules = [] } = useModules();
   const updateModule = useUpdateModule();
   const updateXP = useUpdateXP();
+  const { profile } = useProfile();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
+  const [playerHealth, setPlayerHealth] = useState(3);
+  const [bossHealth, setBossHealth] = useState(100);
 
   const currentModule = modules.find((m) => m.id === moduleId);
   const nextModule = modules.find((m) => m.order_index === (currentModule?.order_index || 0) + 1);
@@ -31,6 +35,15 @@ export default function Quiz() {
   const progress = ((currentIndex + 1) / quizzes.length) * 100;
   const passingScore = Math.ceil(quizzes.length * 0.7);
   const passed = score >= passingScore;
+
+  // Boss names based on module
+  const bossNames: Record<number, string> = {
+    0: 'Guardião da Lógica',
+    1: 'Desafio do Código',
+    2: 'O Arquiteto',
+    3: 'O Engenheiro',
+    4: 'O Mestre Final',
+  };
 
   const handleAnswer = (index: number) => {
     if (isAnswered) return;
@@ -42,11 +55,15 @@ export default function Quiz() {
     
     if (isCorrect) {
       setScore((s) => s + 1);
+      // Damage boss
+      setBossHealth((h) => Math.max(0, h - (100 / quizzes.length)));
       // Play success sound
       const audio = new Audio('/success.mp3');
       audio.volume = 0.3;
       audio.play().catch(() => {});
     } else {
+      // Player takes damage
+      setPlayerHealth((h) => Math.max(0, h - 1));
       // Play error sound
       const audio = new Audio('/error.mp3');
       audio.volume = 0.3;
@@ -55,12 +72,12 @@ export default function Quiz() {
   };
 
   const handleNext = () => {
-    if (currentIndex < quizzes.length - 1) {
+    if (playerHealth <= 0 || currentIndex >= quizzes.length - 1) {
+      setIsFinished(true);
+    } else {
       setCurrentIndex((i) => i + 1);
       setSelectedAnswer(null);
       setIsAnswered(false);
-    } else {
-      setIsFinished(true);
     }
   };
 
@@ -109,6 +126,7 @@ export default function Quiz() {
   }
 
   if (isFinished) {
+    const defeated = passed || playerHealth > 0;
     return (
       <div className="min-h-screen bg-background cyber-grid flex items-center justify-center p-6">
         <motion.div
@@ -129,12 +147,14 @@ export default function Quiz() {
           </div>
           
           <h1 className="text-3xl font-black mb-2">
-            {passed ? 'Boss Derrotado!' : 'Quase Lá!'}
+            {passed ? '🎉 Boss Derrotado!' : playerHealth <= 0 ? '💀 Game Over!' : 'Quase Lá!'}
           </h1>
           
           <p className="text-muted-foreground mb-6">
             {passed 
-              ? `Parabéns! Você acertou ${score} de ${quizzes.length} perguntas!`
+              ? `Parabéns! Você derrotou ${bossNames[currentModule?.order_index || 0]}!`
+              : playerHealth <= 0 
+              ? 'Você perdeu todas as vidas. Tente novamente!'
               : `Você acertou ${score} de ${quizzes.length}. Precisa de ${passingScore} para passar.`
             }
           </p>
@@ -156,6 +176,8 @@ export default function Quiz() {
                 setSelectedAnswer(null);
                 setIsAnswered(false);
                 setIsFinished(false);
+                setPlayerHealth(3);
+                setBossHealth(100);
               }}>
                 Tentar Novamente
               </Button>
@@ -169,6 +191,8 @@ export default function Quiz() {
       </div>
     );
   }
+
+  const bossName = bossNames[currentModule?.order_index || 0];
 
   return (
     <div className="min-h-screen bg-background cyber-grid">
@@ -184,6 +208,84 @@ export default function Quiz() {
           </div>
         </div>
       </header>
+
+      {/* Boss Battle Arena */}
+      <div className="container mx-auto px-6 py-6">
+        <div className="glass-card p-6 mb-6">
+          <div className="flex items-center justify-between gap-4">
+            {/* Player Side */}
+            <motion.div 
+              className="flex items-center gap-4"
+              animate={selectedAnswer !== null && selectedAnswer !== currentQuiz?.correct_answer ? { x: [-5, 5, -5, 5, 0] } : {}}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="relative">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-cyan-400 flex items-center justify-center border-2 border-primary/50">
+                  <Shield className="w-8 h-8 text-white" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-background rounded-full flex items-center justify-center border border-primary">
+                  <span className="text-xs font-bold">{profile?.level || 1}</span>
+                </div>
+              </div>
+              <div>
+                <p className="font-bold text-sm">{profile?.nome || 'Jogador'}</p>
+                <div className="flex gap-1 mt-1">
+                  {[...Array(3)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      initial={false}
+                      animate={i >= playerHealth ? { scale: 0.8, opacity: 0.3 } : { scale: 1, opacity: 1 }}
+                    >
+                      <Heart 
+                        className={`w-5 h-5 ${i < playerHealth ? 'text-red-500 fill-red-500' : 'text-muted-foreground'}`} 
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* VS */}
+            <div className="flex flex-col items-center">
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Zap className="w-8 h-8 text-orange-500" />
+              </motion.div>
+              <span className="text-xs font-bold text-muted-foreground">VS</span>
+            </div>
+
+            {/* Boss Side */}
+            <motion.div 
+              className="flex items-center gap-4 flex-row-reverse"
+              animate={selectedAnswer !== null && selectedAnswer === currentQuiz?.correct_answer ? { x: [5, -5, 5, -5, 0] } : {}}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="relative">
+                <motion.div 
+                  className="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center border-2 border-red-500/50"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Bug className="w-8 h-8 text-white" />
+                </motion.div>
+              </div>
+              <div className="text-right">
+                <p className="font-bold text-sm text-red-400">{bossName}</p>
+                <div className="w-24 h-2 bg-muted rounded-full overflow-hidden mt-2">
+                  <motion.div 
+                    className="h-full bg-gradient-to-r from-red-500 to-orange-500"
+                    initial={{ width: '100%' }}
+                    animate={{ width: `${bossHealth}%` }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </div>
 
       {/* Progress Bar */}
       <div className="h-2 bg-muted">
@@ -297,7 +399,7 @@ export default function Quiz() {
                 className="flex justify-center"
               >
                 <Button variant="neon" size="lg" onClick={handleNext} className="gap-2">
-                  {currentIndex < quizzes.length - 1 ? 'Próxima Pergunta' : 'Ver Resultado'}
+                  {currentIndex < quizzes.length - 1 && playerHealth > 0 ? 'Próxima Pergunta' : 'Ver Resultado'}
                   <ChevronRight className="w-5 h-5" />
                 </Button>
               </motion.div>

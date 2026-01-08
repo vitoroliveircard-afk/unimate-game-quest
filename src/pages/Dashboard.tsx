@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Gamepad2, BookOpen, Trophy, Flame, Lock, CheckCircle2, Play, LogOut, Settings } from 'lucide-react';
+import { 
+  Gamepad2, BookOpen, Trophy, Flame, Lock, CheckCircle2, Play, LogOut, Settings,
+  Cpu, PenTool, Wrench
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
 import { XPBar } from '@/components/XPBar';
@@ -11,7 +14,9 @@ import { useModules } from '@/hooks/useModules';
 import { useLessons } from '@/hooks/useLessons';
 import { useUserProgress } from '@/hooks/useUserProgress';
 
-const iconMap: Record<string, React.ElementType> = { BookOpen, Gamepad2, Trophy };
+const iconMap: Record<string, React.ElementType> = { 
+  BookOpen, Gamepad2, Trophy, Cpu, PenTool, Wrench 
+};
 
 export default function Dashboard() {
   const { signOut } = useAuth();
